@@ -146,6 +146,11 @@ def android_ninepatch_save( image, layer, directory, scaleFactor ):
                         0, 9, 0, 0, 0, 0, 0, 0, 0 )
     pdb.gimp_image_delete( newImage )
 
+def mkdirs( path ):
+    try:
+        os.makedirs( path )
+    except: pass
+
 def android_save_resolutions( image, layer, directory ):
     """
     Save an image in many resolutions to a project.
@@ -157,6 +162,15 @@ def android_save_resolutions( image, layer, directory ):
     resolution = image.resolution[0]
 
     print "Saving all resolutions to %s" % directory
+
+    res = os.path.join( directory, 'res' )
+    ldpi = os.path.join( res, 'drawable-ldpi' )
+    mdpi = os.path.join( res, 'drawable-mdpi' )
+    hdpi = os.path.join( res, 'drawable-hdpi' )
+
+    mkdirs( ldpi )
+    mkdirs( mdpi )
+    mkdirs( hdpi )
 
     android_ninepatch_save( image, layer,
                             os.path.join( directory, 'res', 'drawable-ldpi' ),
