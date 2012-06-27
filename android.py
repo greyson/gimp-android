@@ -111,10 +111,22 @@ def android_ninepatch_render( image, current_layer ):
     # pdb.gimp_undo_push_group_end( image )
     image.enable_undo()
 
+def is_ninepatch( image ):
+    elastic = image.get_layer_by_tattoo( ELASTIC_TATTOO )
+    content = image.get_layer_by_tattoo( CONTENT_TATTOO )
+
+    return (elastic is not None) and (content is not None)
+
 def mk9filename( image ):
     filename = pdb.gimp_image_get_filename( image )
     filename = os.path.basename( filename )
-    return os.path.splitext( filename )[0] + ".9.png"
+
+    if( is_ninepatch( image ) ):
+        ext = ".9.png"
+    else:
+        ext = ".png"
+
+    return os.path.splitext( filename )[0] + ext
 
 def android_ninepatch_save( image, layer, directory, scaleFactor ):
     """
