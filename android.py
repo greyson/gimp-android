@@ -104,6 +104,9 @@ def android_ninepatch_render( image, current_layer ):
     pdb.gimp_pencil( border, 4,
                      (sel[1], bottom, sel[3] - 1, bottom) )
 
+    elastic.visible = False
+    content.visible = False
+
     # pdb.gimp_context_pop()
     # pdb.gimp_undo_push_group_end( image )
     image.enable_undo()
@@ -117,9 +120,6 @@ def android_ninepatch_save( image, layer, directory, scaleFactor ):
     """
     Render and save a 9-patch PNG.
     """
-
-    print "Saving %s scaled by %f" % (directory, scaleFactor)
-    print "Will use filename %s" % mk9filename( image )
 
     # Figure out what our filenames should be (temporary, and later)
     newFile = pdb.gimp_temp_name( "xcf" )
@@ -136,8 +136,6 @@ def android_ninepatch_save( image, layer, directory, scaleFactor ):
                                scaleFactor * image.height,
                                INTERPOLATION_CUBIC )
     android_ninepatch_render( newImage, None )
-
-    ### TODO: hide 9-elastic and 9-content
 
     # Create a new layer with all layers merged
     resultLayer = pdb.gimp_image_merge_visible_layers( newImage, EXPAND_AS_NECESSARY )
