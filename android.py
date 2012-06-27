@@ -184,15 +184,9 @@ def android_save_resolutions( image, layer, directory ):
     mkdirs( mdpi )
     mkdirs( hdpi )
 
-    android_ninepatch_save( image, layer,
-                            os.path.join( directory, 'res', 'drawable-ldpi' ),
-                            120 / resolution )
-    android_ninepatch_save( image, layer,
-                            os.path.join( directory, 'res', 'drawable-mdpi' ),
-                            160 / resolution )
-    android_ninepatch_save( image, layer,
-                            os.path.join( directory, 'res', 'drawable-hdpi' ),
-                            240 / resolution )
+    android_ninepatch_save( image, layer, ldpi, 120 / resolution )
+    android_ninepatch_save( image, layer, mdpi, 160 / resolution )
+    android_ninepatch_save( image, layer, hdpi, 240 / resolution )
 
 register(
     "android-ninepatch-prepare",
