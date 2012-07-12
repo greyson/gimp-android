@@ -228,3 +228,6 @@ register(
     android_save_resolutions )
 
 main()
+
+__author__ = "Greyson Fischer <gfischer@foosoft.us>"
+__copyright__ = "Copyright 2012 Greyson Fischer"
