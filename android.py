@@ -95,22 +95,28 @@ def android_ninepatch_render( image, current_layer ):
     # Coordinate parts for the border
     (et, el) = elastic.offsets;
     (ct, cl) = content.offsets;
-    t = 0;
-    l = 0;
-    b = imageHeight -1;
-    r = imageWidth -1;
+    t = top = 0;
+    l = left = 0;
+    b = bottom = imageHeight -1;
+    r = right = imageWidth -1;
 
-    for x in xrange( 0, elastic.width ):
-        for y in xrange( 0, elastic.height ):
-            if eArray[ y * elastic.width + x ] > 0:
-                pdb.gimp_pencil( border, 2, (x + el, t) )
-                pdb.gimp_pencil( border, 2, (l,      y + et) )
+    for row in xrange( 0, elastic.height ):
+        if any( a > 0 for a in eArray[ (row * elastic.width) :
+                                       ((row + 1) * elastic.width) ] ):
+            pdb.gimp_pencil( border, 2, (left, row + et) )
 
-    for x in xrange( 0, content.width ):
-        for y in xrange( 0, content.height ):
-            if cArray[ y * content.width + x ] > 0:
-                pdb.gimp_pencil( border, 2, (x + cl, b     ) )
-                pdb.gimp_pencil( border, 2, (r,      y + ct) )
+    for row in xrange( 0, content.height ):
+        if any( a > 0 for a in cArray[ (row * content.width) :
+                                       ((row+1) * content.width) ] ):
+            pdb.gimp_pencil( border, 2, (right, row + ct) )
+
+    for col in xrange( 0, elastic.width ):
+        if any( a > 0 for a in eArray[ col::elastic.width ] ):
+            pdb.gimp_pencil( border, 2, (col + el, top) )
+
+    for col in xrange( 0, content.width ):
+        if any( a > 0 for a in cArray[ col::elastic.width ] ):
+            pdb.gimp_pencil( border, 2, (col + cl, bottom ) )
 
     elastic.visible = False
     content.visible = False
