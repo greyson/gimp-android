@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from array import array
 from gimpfu import *
 import os.path
 
@@ -80,30 +81,36 @@ def android_ninepatch_render( image, current_layer ):
     pdb.gimp_context_set_foreground( (0,0,0) )
     pdb.gimp_context_set_opacity( 100 )
 
-    # Grab the dimensions of the elastic layer
-    pdb.gimp_selection_layer_alpha( elastic )
-    sel = pdb.gimp_selection_bounds( image )
-    pdb.gimp_selection_clear( image )
+    # Use pixel regions to brute-force opacities
+    target = border.get_pixel_rgn( 0, 0, image.width, image.height )
 
-    # Draw the top and left 9-patch borders
-    top = left = 0
-    pdb.gimp_pencil( border, 4,
-                     (left, sel[2], left, sel[4] -1 ) )
-    pdb.gimp_pencil( border, 4,
-                     (sel[1], top, sel[3] - 1, top ) )
+    eArray = elastic.get_pixel_rgn( 0, 0, elastic.width, elastic.height )
+    eArray = array( 'B', eArray[ 0:elastic.width, 0:elastic.height ] )
+    eArray = eArray[3::4] # get only alpha channel
 
-    # Grab the dimensions of the content layer
-    pdb.gimp_selection_layer_alpha( content )
-    sel = pdb.gimp_selection_bounds( image )
-    pdb.gimp_selection_clear( image )
+    cArray = content.get_pixel_rgn( 0, 0, content.width, content.height )
+    cArray = array( 'B', cArray[ 0:content.width, 0:content.height ] )
+    cArray = cArray[3::4] # get only alpha channel
 
-    # Now draw the bottom and right 9-patch borders
-    right = imageWidth - 1
-    bottom = imageHeight - 1
-    pdb.gimp_pencil( border, 4,
-                     (right, sel[2], right, sel[4] - 1) )
-    pdb.gimp_pencil( border, 4,
-                     (sel[1], bottom, sel[3] - 1, bottom) )
+    # Coordinate parts for the border
+    (et, el) = elastic.offsets;
+    (ct, cl) = content.offsets;
+    t = 0;
+    l = 0;
+    b = imageHeight -1;
+    r = imageWidth -1;
+
+    for x in xrange( 0, elastic.width ):
+        for y in xrange( 0, elastic.height ):
+            if eArray[ y * elastic.width + x ] > 0:
+                pdb.gimp_pencil( border, 2, (x + el, t) )
+                pdb.gimp_pencil( border, 2, (l,      y + et) )
+
+    for x in xrange( 0, content.width ):
+        for y in xrange( 0, content.height ):
+            if cArray[ y * content.width + x ] > 0:
+                pdb.gimp_pencil( border, 2, (x + cl, b     ) )
+                pdb.gimp_pencil( border, 2, (r,      y + ct) )
 
     elastic.visible = False
     content.visible = False
