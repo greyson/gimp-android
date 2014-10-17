@@ -62,11 +62,11 @@ rather the second set of numbers in the "Scale Image" dialog -- to
 determine how to scale the image into the density-specific project
 folders:
 
-* `drawable-ldpi` at a resolution of 120
 * `drawable-mdpi` at a resolution of 160
 * `drawable-hdpi` at a resolution of 240
+* `drawable-xhdpi` at a resolution of 320
 
-I recommend using a resolution of 480 for all images. 480 is the least
+I recommend using a resolution of 960 for all images. 960 is the least
 common multiple of all three resolutions, and therefore scales without
 needing antialiasing of any kind.
 
