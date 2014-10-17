@@ -33,8 +33,10 @@ def android_ninepatch_prepare( image, current_layer ):
     content.tattoo = CONTENT_TATTOO
 
     # Then place the layers into the image
+    pdb.gimp_undo_push_group_start( image )
     image.add_layer( elastic, -1 )
     image.add_layer( content, -1 )
+    pdb.gimp_undo_push_group_end( image )
 
 def android_ninepatch_render( image, current_layer ):
     """
@@ -62,7 +64,7 @@ def android_ninepatch_render( image, current_layer ):
 
 
     # Bundle everything into a single undo
-    image.disable_undo()
+    pdb.gimp_undo_push_group_start( image )
     # pdb.gimp_undo_push_group_start( image )
     # pdb.gimp_context_push()
 
@@ -75,7 +77,8 @@ def android_ninepatch_render( image, current_layer ):
     image.add_layer( border, -1 )
 
     # Select the brush useful for drawing the border
-    pdb.gimp_brushes_set_brush( "Circle (01)" )
+    pdb.gimp_brushes_set_brush( "1. Pixel" )
+    pdb.gimp_context_set_brush_size( 1 )
     pdb.gimp_context_set_foreground( (0,0,0) )
     pdb.gimp_context_set_opacity( 100 )
 
@@ -109,7 +112,7 @@ def android_ninepatch_render( image, current_layer ):
 
     # pdb.gimp_context_pop()
     # pdb.gimp_undo_push_group_end( image )
-    image.enable_undo()
+    pdb.gimp_undo_push_group_end( image )
 
 def is_ninepatch( image ):
     elastic = image.get_layer_by_tattoo( ELASTIC_TATTOO )
