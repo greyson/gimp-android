@@ -53,16 +53,15 @@ def android_ninepatch_render( image, current_layer ):
     This may safely be called on unprepared images, but will have no
     effect.
     """
+    if not is_ninepatch( image ):
+        # Nothing to be done
+        return
+
     imageWidth = image.width + 2
     imageHeight = image.height + 2
 
     elastic = image.get_layer_by_tattoo( ELASTIC_TATTOO )
     content = image.get_layer_by_tattoo( CONTENT_TATTOO )
-
-    if( elastic is None or content is None ):
-        # No work to be done
-        return
-
 
     # Bundle everything into a single undo
     pdb.gimp_undo_push_group_start( image )
@@ -95,25 +94,29 @@ def android_ninepatch_render( image, current_layer ):
     # Coordinate parts for the border
     (et, el) = elastic.offsets;
     (ct, cl) = content.offsets;
-    t = top = 0;
-    l = left = 0;
-    b = bottom = imageHeight -1;
-    r = right = imageWidth -1;
+    top = 0;
+    left = 0;
+    bottom = imageHeight -1;
+    right = imageWidth -1;
 
+    # Mark left (elastic) side
     for row in xrange( 0, elastic.height ):
         if any( a > 0 for a in eArray[ (row * elastic.width) :
                                        ((row + 1) * elastic.width) ] ):
             pdb.gimp_pencil( border, 2, (left, row + et) )
 
+    # Mark right (content) side
     for row in xrange( 0, content.height ):
         if any( a > 0 for a in cArray[ (row * content.width) :
                                        ((row+1) * content.width) ] ):
             pdb.gimp_pencil( border, 2, (right, row + ct) )
 
+    # Mark top (elastic) side
     for col in xrange( 0, elastic.width ):
         if any( a > 0 for a in eArray[ col::elastic.width ] ):
             pdb.gimp_pencil( border, 2, (col + el, top) )
 
+    # Mark bottom (content) side
     for col in xrange( 0, content.width ):
         if any( a > 0 for a in cArray[ col::elastic.width ] ):
             pdb.gimp_pencil( border, 2, (col + cl, bottom ) )
