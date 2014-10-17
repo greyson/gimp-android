@@ -65,8 +65,6 @@ def android_ninepatch_render( image, current_layer ):
 
     # Bundle everything into a single undo
     pdb.gimp_undo_push_group_start( image )
-    # pdb.gimp_undo_push_group_start( image )
-    # pdb.gimp_context_push()
 
     # Create the transparent border layer
     image.resize( imageWidth, imageHeight, 1, 1 )
@@ -110,8 +108,6 @@ def android_ninepatch_render( image, current_layer ):
     elastic.visible = False
     content.visible = False
 
-    # pdb.gimp_context_pop()
-    # pdb.gimp_undo_push_group_end( image )
     pdb.gimp_undo_push_group_end( image )
 
 def is_ninepatch( image ):
