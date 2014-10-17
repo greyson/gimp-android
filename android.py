@@ -176,25 +176,25 @@ def android_save_resolutions( image, layer, directory ):
     print "Saving all resolutions to %s" % directory
 
     res = os.path.join( directory, 'res' )
-    ldpi = os.path.join( res, 'drawable-ldpi' )
     mdpi = os.path.join( res, 'drawable-mdpi' )
     hdpi = os.path.join( res, 'drawable-hdpi' )
+    xhdpi = os.path.join( res, 'drawable-xhdpi' )
 
-    mkdirs( ldpi )
     mkdirs( mdpi )
     mkdirs( hdpi )
+    mkdirs( xhdpi )
 
-    android_ninepatch_save( image, layer, ldpi, 120 / resolution )
     android_ninepatch_save( image, layer, mdpi, 160 / resolution )
     android_ninepatch_save( image, layer, hdpi, 240 / resolution )
+    android_ninepatch_save( image, layer, xhdpi, 320 / resolution )
 
 register(
     "android-ninepatch-prepare",
     "Prepare image as 9-patch",
     android_ninepatch_prepare.__doc__.strip(),
     "Greyson Fischer",
-    "Copyright 2011-2012, Greyson Fischer",
-    "June 26, 2012",
+    "Copyright 2011-2014, Greyson Fischer",
+    "October 16, 2014",
     "<Image>/Image/Android/Prepare 9-patch",
     "RGBA",
     [],
@@ -206,8 +206,8 @@ register(
     "Render image as 9-patch",
     android_ninepatch_render.__doc__.strip(),
     "Greyson Fischer",
-    "Copyright 2011-2012, Greyson Fischer",
-    "June 26, 2012",
+    "Copyright 2011-2014, Greyson Fischer",
+    "October 16, 2014",
     "<Image>/Image/Android/Render 9-patch",
     "RGBA",
     [],
@@ -216,11 +216,11 @@ register(
 
 register(
     "android-save-resolutions",
-    "Save an image in [lmh]dpi resolutions to a project",
+    "Save an image in {m,h,xh}dpi resolutions to a project",
     android_save_resolutions.__doc__.strip(),
     "Greyson Fischer",
-    "Copyright 2011-2012, Greyson Fischer",
-    "June 26, 2012",
+    "Copyright 2011-2014, Greyson Fischer",
+    "October 16, 2014",
     "<Image>/Image/Android/Save to project",
     "RGBA",
     [ (PF_DIRNAME, "directory", "Project directory", "/tmp") ],
