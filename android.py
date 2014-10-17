@@ -1,6 +1,7 @@
 #!/usr/bin/env python2
 
 from gimpfu import *
+from itertools import repeat
 import os.path
 
 ELASTIC_TATTOO = 991
@@ -81,31 +82,22 @@ def android_ninepatch_render( image, current_layer ):
     pdb.gimp_context_set_brush_size( 1 )
     pdb.gimp_context_set_foreground( (0,0,0) )
     pdb.gimp_context_set_opacity( 100 )
-
-    # Grab the dimensions of the elastic layer
-    pdb.gimp_selection_layer_alpha( elastic )
-    sel = pdb.gimp_selection_bounds( image )
     pdb.gimp_selection_clear( image )
 
-    # Draw the top and left 9-patch borders
-    top = left = 0
-    pdb.gimp_pencil( border, 4,
-                     (left, sel[2], left, sel[4] -1 ) )
-    pdb.gimp_pencil( border, 4,
-                     (sel[1], top, sel[3] - 1, top ) )
-
-    # Grab the dimensions of the content layer
-    pdb.gimp_selection_layer_alpha( content )
-    sel = pdb.gimp_selection_bounds( image )
-    pdb.gimp_selection_clear( image )
-
-    # Now draw the bottom and right 9-patch borders
-    right = imageWidth - 1
-    bottom = imageHeight - 1
-    pdb.gimp_pencil( border, 4,
-                     (right, sel[2], right, sel[4] - 1) )
-    pdb.gimp_pencil( border, 4,
-                     (sel[1], bottom, sel[3] - 1, bottom) )
+    # Brute force through elastic and content pixels,
+    # drawing appropriate border lines
+    t = 0
+    b = imageHeight -1
+    l = 0
+    r = imageWidth -1
+    for x in xrange( 1, imageWidth - 2 ):
+        for y in xrange( 1, imageHeight - 2 ):
+            if elastic.get_pixel( x, y )[3] > 0:
+                pdb.gimp_pencil( border, 2, (x+1, t) )
+                pdb.gimp_pencil( border, 2, (l,   y+1) )
+            if content.get_pixel( x, y )[3] > 0:
+                pdb.gimp_pencil( border, 2, (x+1, b) )
+                pdb.gimp_pencil( border, 2, (r,   y+1) )
 
     elastic.visible = False
     content.visible = False
