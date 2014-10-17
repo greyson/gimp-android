@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+from array import array
 from gimpfu import *
 import os.path
 
@@ -52,16 +53,15 @@ def android_ninepatch_render( image, current_layer ):
     This may safely be called on unprepared images, but will have no
     effect.
     """
+    if not is_ninepatch( image ):
+        # Nothing to be done
+        return
+
     imageWidth = image.width + 2
     imageHeight = image.height + 2
 
     elastic = image.get_layer_by_tattoo( ELASTIC_TATTOO )
     content = image.get_layer_by_tattoo( CONTENT_TATTOO )
-
-    if( elastic is None or content is None ):
-        # No work to be done
-        return
-
 
     # Bundle everything into a single undo
     pdb.gimp_undo_push_group_start( image )
@@ -80,30 +80,46 @@ def android_ninepatch_render( image, current_layer ):
     pdb.gimp_context_set_foreground( (0,0,0) )
     pdb.gimp_context_set_opacity( 100 )
 
-    # Grab the dimensions of the elastic layer
-    pdb.gimp_selection_layer_alpha( elastic )
-    sel = pdb.gimp_selection_bounds( image )
-    pdb.gimp_selection_clear( image )
+    # Use pixel regions to brute-force opacities
+    target = border.get_pixel_rgn( 0, 0, image.width, image.height )
 
-    # Draw the top and left 9-patch borders
-    top = left = 0
-    pdb.gimp_pencil( border, 4,
-                     (left, sel[2], left, sel[4] -1 ) )
-    pdb.gimp_pencil( border, 4,
-                     (sel[1], top, sel[3] - 1, top ) )
+    eArray = elastic.get_pixel_rgn( 0, 0, elastic.width, elastic.height )
+    eArray = array( 'B', eArray[ 0:elastic.width, 0:elastic.height ] )
+    eArray = eArray[3::4] # get only alpha channel
 
-    # Grab the dimensions of the content layer
-    pdb.gimp_selection_layer_alpha( content )
-    sel = pdb.gimp_selection_bounds( image )
-    pdb.gimp_selection_clear( image )
+    cArray = content.get_pixel_rgn( 0, 0, content.width, content.height )
+    cArray = array( 'B', cArray[ 0:content.width, 0:content.height ] )
+    cArray = cArray[3::4] # get only alpha channel
 
-    # Now draw the bottom and right 9-patch borders
-    right = imageWidth - 1
-    bottom = imageHeight - 1
-    pdb.gimp_pencil( border, 4,
-                     (right, sel[2], right, sel[4] - 1) )
-    pdb.gimp_pencil( border, 4,
-                     (sel[1], bottom, sel[3] - 1, bottom) )
+    # Coordinate parts for the border
+    (et, el) = elastic.offsets;
+    (ct, cl) = content.offsets;
+    top = 0;
+    left = 0;
+    bottom = imageHeight -1;
+    right = imageWidth -1;
+
+    # Mark left (elastic) side
+    for row in xrange( 0, elastic.height ):
+        if any( a > 0 for a in eArray[ (row * elastic.width) :
+                                       ((row + 1) * elastic.width) ] ):
+            pdb.gimp_pencil( border, 2, (left, row + et) )
+
+    # Mark right (content) side
+    for row in xrange( 0, content.height ):
+        if any( a > 0 for a in cArray[ (row * content.width) :
+                                       ((row+1) * content.width) ] ):
+            pdb.gimp_pencil( border, 2, (right, row + ct) )
+
+    # Mark top (elastic) side
+    for col in xrange( 0, elastic.width ):
+        if any( a > 0 for a in eArray[ col::elastic.width ] ):
+            pdb.gimp_pencil( border, 2, (col + el, top) )
+
+    # Mark bottom (content) side
+    for col in xrange( 0, content.width ):
+        if any( a > 0 for a in cArray[ col::elastic.width ] ):
+            pdb.gimp_pencil( border, 2, (col + cl, bottom ) )
 
     elastic.visible = False
     content.visible = False
