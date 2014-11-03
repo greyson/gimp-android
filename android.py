@@ -39,6 +39,11 @@ def android_ninepatch_prepare( image, current_layer ):
     image.add_layer( content, -1 )
     pdb.gimp_undo_push_group_end( image )
 
+def get_alpha_pixels( layer ):
+    reg = layer.get_pixel_rgn( 0, 0, layer.width, layer.height )
+    arr = array( 'B', reg[ 0:layer.width, 0:layer.height ] )
+    return arr[ 3::4 ] # Return only the alpha portions
+
 def android_ninepatch_render( image, current_layer ):
     """
     Render a 9-patch border.
@@ -82,14 +87,10 @@ def android_ninepatch_render( image, current_layer ):
 
     # Use pixel regions to brute-force opacities
     target = border.get_pixel_rgn( 0, 0, image.width, image.height )
+    targetArray = array( 'B', target[ 0:target.width, 0:target.height ] )
 
-    eArray = elastic.get_pixel_rgn( 0, 0, elastic.width, elastic.height )
-    eArray = array( 'B', eArray[ 0:elastic.width, 0:elastic.height ] )
-    eArray = eArray[3::4] # get only alpha channel
-
-    cArray = content.get_pixel_rgn( 0, 0, content.width, content.height )
-    cArray = array( 'B', cArray[ 0:content.width, 0:content.height ] )
-    cArray = cArray[3::4] # get only alpha channel
+    eArray = get_alpha_pixels( elastic )
+    cArray = get_alpha_pixels( content )
 
     # Coordinate parts for the border
     (et, el) = elastic.offsets;
